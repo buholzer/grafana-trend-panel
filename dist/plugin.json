@@ -1,0 +1,33 @@
+{
+  "type": "panel",
+  "name": "Trend",
+  "id": "trend-panel",
+
+  "info": {
+    "description": "Trend panel for grafana",
+    "author": {
+      "name": "Mirko Buholzer",
+      "url": "https://buholzer.com"
+    },
+    "keywords": ["trend", "panel"],
+    "logos": {
+      "small": "img/trend-panel-icon.svg",
+      "large": "img/trend-panel-icon.svg"
+    },
+    "links": [
+      {"name": "Project site", "url": "https://github.com/buholzer/grafana-trend-panel"},
+      {"name": "MIT License", "url": "https://github.com/buholzer/grafana-trend-panel/blob/master/LICENSE"}
+    ],
+    "screenshots": [
+      {"name": "Showcase", "path": "img/screenshot-showcase.png"},
+      {"name": "Options", "path": "img/screenshot-options.png"}
+    ],
+    "version": "0.0.1",
+    "updated": "2018-04-23"
+  },
+
+  "dependencies": {
+    "grafanaVersion": "3.x.x",
+    "plugins": [ ]
+  }
+}
