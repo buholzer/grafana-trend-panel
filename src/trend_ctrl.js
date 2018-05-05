@@ -21,6 +21,7 @@ export class TrendCtrl extends MetricsPanelCtrl {
       valueFontSize: '80%',
       postfixFontSize: '50%',
       trend: {
+        show: true,
         valueFontSize: '80%',
         signFontSize: '70%',
         unitFontSize: '50%',
@@ -106,6 +107,9 @@ export class TrendCtrl extends MetricsPanelCtrl {
   setValues(data) {
     data.flotpairs = [];
 
+    console.log(`${this.panel.prefix} > setValues()`)
+    console.log(this.series)
+
     if (this.series && this.series.length > 0) {
       const lastPoint = _.last(this.series[0].datapoints);
       const lastValue = _.isArray(lastPoint) ? lastPoint[0] : null;
@@ -140,29 +144,51 @@ export class TrendCtrl extends MetricsPanelCtrl {
 
     if (this.series && this.series.length > 1 && data.value) {
       this.getTrendValue(data, this.series[1], data.value);
+    } else {
+      data.trend = {}
     }
+    console.log(data)
   }
 
   getTrendValue(data, series, current) {
-    data.trend = {
-      percent: 0,
-      sign: 0,
-      increase: 0
-    };
+
+    data.trend = {}
 
     const original = series.stats[this.panel.valueName];
+    // const original = 130.2456;
     const increase = current - original;
 
+    console.log(current, original, increase)
+
+    let percent = 0;
     if (original !== 0) {
-      const percent = (increase / original) * 100;
+      percent = (increase / original) * 100;
       if (percent > 0) {
         data.trend.sign = 1;
       } else if (percent < 0) {
         data.trend.sign = -1;
+      } else {
+        data.trend.sign = 0;
       }
-      data.trend.percent = Math.abs(parseInt(percent.toFixed(2), 10));
-      data.trend.increase = increase;
+    } else {
+      if (current > 0) {
+        data.trend.sign = 1;
+      } else if (current < 0) {
+        data.trend.sign = -1;
+      } else {
+        data.trend.sign = 0;
+      }      
     }
+
+
+    data.trend.percent = Math.abs(parseInt(percent.toFixed(2), 10));
+    data.trend.increase = increase;
+    data.trend.original = original;
+
+    const decimalInfo = this.getDecimalsForValue(increase);
+    const formatFunc = kbn.valueFormats[this.panel.format];
+    data.trend.increaseFormatted = formatFunc(increase, decimalInfo.decimals, decimalInfo.scaledDecimals);
+    data.trend.increaseRounded = kbn.roundValue(increase, decimalInfo.decimals);
   }
 
   //
@@ -233,19 +259,33 @@ export class TrendCtrl extends MetricsPanelCtrl {
         $prefixContainer.css('font-size', this.panel.prefixFontSize);
 
         $valueContainer.html(this.data.valueFormatted);
+        $valueContainer.removeAttr('style');
         $valueContainer.css('font-size', this.panel.valueFontSize);
+      } else {
+        $valueContainer.html('loading...');
+        $valueContainer.css({
+            'opacity': 0.2,
+            'font-size': '30%',
+            'font-weight': 10
+          });
+      }
 
+      if (this.panel.trend.show && 
+          this.data.trend.hasOwnProperty('percent') && 
+          this.data.trend.hasOwnProperty('sign')) {
         $signContainer.html(this.panel.trend.sign[this.data.trend.sign + 1]);
         $signContainer.css('font-size', this.panel.trend.signFontSize);
-        $trendValueContainer.html(this.data.trend.percent);
+        $trendValueContainer.html((this.data.trend.original === 0)? '&nbsp;': this.data.trend.percent);
         $trendValueContainer.css('font-size', this.panel.trend.valueFontSize);
-        $unitContainer.html('%');
+        $unitContainer.html((this.data.trend.original === 0)? '&nbsp;': '%');
         $unitContainer.css('font-size', this.panel.trend.unitFontSize);
 
         $trendContainer.css('color', this.panel.trend.colors[this.data.trend.sign + 1]);
 
-        if (this.panel.trend.showDiff && this.data.trend.increase !== 0) {
-          $diffContainer.html((this.data.trend.increase > 0) ? '+' + this.data.trend.increase : this.data.trend.increase);
+        if (this.panel.trend.showDiff && 
+            this.data.trend.increaseRounded && 
+            this.data.trend.increaseRounded !== 0) {
+          $diffContainer.html((this.data.trend.increaseRounded > 0) ? '+' + this.data.trend.increaseRounded : '-' + this.data.trend.increaseRounded);
           $diffContainer.css({
             'background-color': this.panel.trend.colors[this.data.trend.sign + 1],
             'color': '#cccccc',
@@ -258,6 +298,16 @@ export class TrendCtrl extends MetricsPanelCtrl {
           $diffContainer.html('');
           $diffContainer.removeAttr('style');
         }
+      } else {
+        $signContainer.html('');
+        $signContainer.removeAttr('style');
+        $trendValueContainer.html('');
+        $trendValueContainer.removeAttr('style');
+        $unitContainer.html('');
+        $unitContainer.removeAttr('style');
+        $diffContainer.html('&nbsp;');
+        $diffContainer.removeAttr('style');
+
       }
 
       if (this.panel.bgColor) {

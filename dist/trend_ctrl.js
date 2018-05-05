@@ -84,6 +84,7 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
             valueFontSize: '80%',
             postfixFontSize: '50%',
             trend: {
+              show: true,
               valueFontSize: '80%',
               signFontSize: '70%',
               unitFontSize: '50%',
@@ -167,6 +168,9 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
           value: function setValues(data) {
             data.flotpairs = [];
 
+            console.log(this.panel.prefix + ' > setValues()');
+            console.log(this.series);
+
             if (this.series && this.series.length > 0) {
               var lastPoint = _.last(this.series[0].datapoints);
               var lastValue = _.isArray(lastPoint) ? lastPoint[0] : null;
@@ -201,30 +205,51 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
 
             if (this.series && this.series.length > 1 && data.value) {
               this.getTrendValue(data, this.series[1], data.value);
+            } else {
+              data.trend = {};
             }
+            console.log(data);
           }
         }, {
           key: 'getTrendValue',
           value: function getTrendValue(data, series, current) {
-            data.trend = {
-              percent: 0,
-              sign: 0,
-              increase: 0
-            };
+
+            data.trend = {};
 
             var original = series.stats[this.panel.valueName];
+            // const original = 130.2456;
             var increase = current - original;
 
+            console.log(current, original, increase);
+
+            var percent = 0;
             if (original !== 0) {
-              var percent = increase / original * 100;
+              percent = increase / original * 100;
               if (percent > 0) {
                 data.trend.sign = 1;
               } else if (percent < 0) {
                 data.trend.sign = -1;
+              } else {
+                data.trend.sign = 0;
               }
-              data.trend.percent = Math.abs(parseInt(percent.toFixed(2), 10));
-              data.trend.increase = increase;
+            } else {
+              if (current > 0) {
+                data.trend.sign = 1;
+              } else if (current < 0) {
+                data.trend.sign = -1;
+              } else {
+                data.trend.sign = 0;
+              }
             }
+
+            data.trend.percent = Math.abs(parseInt(percent.toFixed(2), 10));
+            data.trend.increase = increase;
+            data.trend.original = original;
+
+            var decimalInfo = this.getDecimalsForValue(increase);
+            var formatFunc = kbn.valueFormats[this.panel.format];
+            data.trend.increaseFormatted = formatFunc(increase, decimalInfo.decimals, decimalInfo.scaledDecimals);
+            data.trend.increaseRounded = kbn.roundValue(increase, decimalInfo.decimals);
           }
         }, {
           key: 'setUnitFormat',
@@ -294,19 +319,29 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
                 $prefixContainer.css('font-size', _this3.panel.prefixFontSize);
 
                 $valueContainer.html(_this3.data.valueFormatted);
+                $valueContainer.removeAttr('style');
                 $valueContainer.css('font-size', _this3.panel.valueFontSize);
+              } else {
+                $valueContainer.html('loading...');
+                $valueContainer.css({
+                  'opacity': 0.2,
+                  'font-size': '30%',
+                  'font-weight': 10
+                });
+              }
 
+              if (_this3.panel.trend.show && _this3.data.trend.hasOwnProperty('percent') && _this3.data.trend.hasOwnProperty('sign')) {
                 $signContainer.html(_this3.panel.trend.sign[_this3.data.trend.sign + 1]);
                 $signContainer.css('font-size', _this3.panel.trend.signFontSize);
-                $trendValueContainer.html(_this3.data.trend.percent);
+                $trendValueContainer.html(_this3.data.trend.original === 0 ? '&nbsp;' : _this3.data.trend.percent);
                 $trendValueContainer.css('font-size', _this3.panel.trend.valueFontSize);
-                $unitContainer.html('%');
+                $unitContainer.html(_this3.data.trend.original === 0 ? '&nbsp;' : '%');
                 $unitContainer.css('font-size', _this3.panel.trend.unitFontSize);
 
                 $trendContainer.css('color', _this3.panel.trend.colors[_this3.data.trend.sign + 1]);
 
-                if (_this3.panel.trend.showDiff && _this3.data.trend.increase !== 0) {
-                  $diffContainer.html(_this3.data.trend.increase > 0 ? '+' + _this3.data.trend.increase : _this3.data.trend.increase);
+                if (_this3.panel.trend.showDiff && _this3.data.trend.increaseRounded && _this3.data.trend.increaseRounded !== 0) {
+                  $diffContainer.html(_this3.data.trend.increaseRounded > 0 ? '+' + _this3.data.trend.increaseRounded : '-' + _this3.data.trend.increaseRounded);
                   $diffContainer.css({
                     'background-color': _this3.panel.trend.colors[_this3.data.trend.sign + 1],
                     'color': '#cccccc',
@@ -319,6 +354,15 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
                   $diffContainer.html('');
                   $diffContainer.removeAttr('style');
                 }
+              } else {
+                $signContainer.html('');
+                $signContainer.removeAttr('style');
+                $trendValueContainer.html('');
+                $trendValueContainer.removeAttr('style');
+                $unitContainer.html('');
+                $unitContainer.removeAttr('style');
+                $diffContainer.html('&nbsp;');
+                $diffContainer.removeAttr('style');
               }
 
               if (_this3.panel.bgColor) {
