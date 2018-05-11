@@ -123,7 +123,7 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
           key: 'onDataReceived',
           value: function onDataReceived(dataList) {
             var data = {};
-
+            console.log('onDataReceived()', dataList);
             this.series = dataList.map(this.seriesHandler.bind(this));
             this.setValues(data);
 
@@ -341,7 +341,7 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
                 $trendContainer.css('color', _this3.panel.trend.colors[_this3.data.trend.sign + 1]);
 
                 if (_this3.panel.trend.showDiff && _this3.data.trend.increaseRounded && _this3.data.trend.increaseRounded !== 0) {
-                  $diffContainer.html(_this3.data.trend.increaseRounded > 0 ? '+' + _this3.data.trend.increaseRounded : '-' + _this3.data.trend.increaseRounded);
+                  $diffContainer.html(_this3.data.trend.increaseRounded > 0 ? '+' + _this3.data.trend.increaseRounded : _this3.data.trend.increaseRounded);
                   $diffContainer.css({
                     'background-color': _this3.panel.trend.colors[_this3.data.trend.sign + 1],
                     'color': '#cccccc',

@@ -66,7 +66,7 @@ export class TrendCtrl extends MetricsPanelCtrl {
 
   onDataReceived(dataList) {
     const data = {};
-
+console.log('onDataReceived()', dataList)
     this.series = dataList.map(this.seriesHandler.bind(this));
     this.setValues(data);
 
@@ -285,7 +285,7 @@ export class TrendCtrl extends MetricsPanelCtrl {
         if (this.panel.trend.showDiff && 
             this.data.trend.increaseRounded && 
             this.data.trend.increaseRounded !== 0) {
-          $diffContainer.html((this.data.trend.increaseRounded > 0) ? '+' + this.data.trend.increaseRounded : '-' + this.data.trend.increaseRounded);
+          $diffContainer.html((this.data.trend.increaseRounded > 0) ? '+' + this.data.trend.increaseRounded : this.data.trend.increaseRounded);
           $diffContainer.css({
             'background-color': this.panel.trend.colors[this.data.trend.sign + 1],
             'color': '#cccccc',
