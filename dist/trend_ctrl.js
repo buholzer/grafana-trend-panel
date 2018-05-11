@@ -168,8 +168,8 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
           value: function setValues(data) {
             data.flotpairs = [];
 
-            console.log(this.panel.prefix + ' > setValues()');
-            console.log(this.series);
+            // console.log(`${this.panel.prefix} > setValues()`)
+            // console.log(this.series)
 
             if (this.series && this.series.length > 0) {
               var lastPoint = _.last(this.series[0].datapoints);
@@ -208,7 +208,9 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
             } else {
               data.trend = {};
             }
-            console.log(data);
+
+            console.log(this.panel.prefix + ' > trend');
+            console.log(data.trend);
           }
         }, {
           key: 'getTrendValue',
@@ -220,7 +222,7 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
             // const original = 130.2456;
             var increase = current - original;
 
-            console.log(current, original, increase);
+            // console.log(current, original, increase)
 
             var percent = 0;
             if (original !== 0) {
@@ -242,7 +244,12 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
               }
             }
 
-            data.trend.percent = Math.abs(parseInt(percent.toFixed(2), 10));
+            var numDecimals = 2;
+            data.trend.percent = Math.abs(parseFloat(Math.round(percent * 100) / 100).toFixed(numDecimals));
+            data.trend.percentFull = data.trend.percent | 0;
+            data.trend.percentDecimals = (data.trend.percent % 1).toFixed(numDecimals) * Math.pow(10, numDecimals);
+            // console.log('>> percent', data.trend.percent, data.trend.percentFull, data.trend.percentDecimals);
+
             data.trend.increase = increase;
             data.trend.original = original;
 
@@ -313,6 +320,7 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
               var $unitContainer = elem.find('.trend-panel-trend-container > span.trend-panel-unit');
               var $diffContainer = elem.find('.trend-panel-trend-container > span.trend-panel-diff');
               var $trendValueContainer = elem.find('.trend-panel-trend-container > span.trend-panel-trend-value');
+              var $trendDigitContainer = elem.find('.trend-panel-trend-container > span.trend-panel-trend-digits');
 
               if (_this3.data.valueFormatted) {
                 $prefixContainer.html(_this3.panel.prefix);
@@ -333,8 +341,9 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
               if (_this3.panel.trend.show && _this3.data.trend.hasOwnProperty('percent') && _this3.data.trend.hasOwnProperty('sign')) {
                 $signContainer.html(_this3.panel.trend.sign[_this3.data.trend.sign + 1]);
                 $signContainer.css('font-size', _this3.panel.trend.signFontSize);
-                $trendValueContainer.html(_this3.data.trend.original === 0 ? '&nbsp;' : _this3.data.trend.percent);
+                $trendValueContainer.html(_this3.data.trend.original === 0 ? '&nbsp;' : _this3.data.trend.percentFull);
                 $trendValueContainer.css('font-size', _this3.panel.trend.valueFontSize);
+                $trendDigitContainer.html(_this3.data.trend.percentDecimals && _this3.data.trend.percentDecimals !== 0 ? '.' + _this3.data.trend.percentDecimals : '');
                 $unitContainer.html(_this3.data.trend.original === 0 ? '&nbsp;' : '%');
                 $unitContainer.css('font-size', _this3.panel.trend.unitFontSize);
 

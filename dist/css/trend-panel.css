@@ -22,6 +22,10 @@
   font-weight: bold;
 }
 
+.trend-panel-trend-digits {
+  font-size: 50%;
+}
+
 .trend-panel-prefix {
   color: #aaaaaa;
 }

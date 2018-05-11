@@ -107,8 +107,8 @@ console.log('onDataReceived()', dataList)
   setValues(data) {
     data.flotpairs = [];
 
-    console.log(`${this.panel.prefix} > setValues()`)
-    console.log(this.series)
+    // console.log(`${this.panel.prefix} > setValues()`)
+    // console.log(this.series)
 
     if (this.series && this.series.length > 0) {
       const lastPoint = _.last(this.series[0].datapoints);
@@ -147,7 +147,10 @@ console.log('onDataReceived()', dataList)
     } else {
       data.trend = {}
     }
-    console.log(data)
+
+    console.log(`${this.panel.prefix} > trend`)
+    console.log(data.trend)
+
   }
 
   getTrendValue(data, series, current) {
@@ -158,7 +161,7 @@ console.log('onDataReceived()', dataList)
     // const original = 130.2456;
     const increase = current - original;
 
-    console.log(current, original, increase)
+    // console.log(current, original, increase)
 
     let percent = 0;
     if (original !== 0) {
@@ -180,8 +183,12 @@ console.log('onDataReceived()', dataList)
       }      
     }
 
+    const numDecimals = 2;
+    data.trend.percent = Math.abs(parseFloat(Math.round(percent * 100) / 100).toFixed(numDecimals));
+    data.trend.percentFull = data.trend.percent | 0;
+    data.trend.percentDecimals = (data.trend.percent % 1).toFixed(numDecimals) * Math.pow(10, numDecimals)
+    // console.log('>> percent', data.trend.percent, data.trend.percentFull, data.trend.percentDecimals);
 
-    data.trend.percent = Math.abs(parseInt(percent.toFixed(2), 10));
     data.trend.increase = increase;
     data.trend.original = original;
 
@@ -253,6 +260,7 @@ console.log('onDataReceived()', dataList)
       const $unitContainer = elem.find('.trend-panel-trend-container > span.trend-panel-unit');
       const $diffContainer = elem.find('.trend-panel-trend-container > span.trend-panel-diff');
       const $trendValueContainer = elem.find('.trend-panel-trend-container > span.trend-panel-trend-value');
+      const $trendDigitContainer = elem.find('.trend-panel-trend-container > span.trend-panel-trend-digits');
 
       if (this.data.valueFormatted) {
         $prefixContainer.html(this.panel.prefix);
@@ -275,8 +283,9 @@ console.log('onDataReceived()', dataList)
           this.data.trend.hasOwnProperty('sign')) {
         $signContainer.html(this.panel.trend.sign[this.data.trend.sign + 1]);
         $signContainer.css('font-size', this.panel.trend.signFontSize);
-        $trendValueContainer.html((this.data.trend.original === 0)? '&nbsp;': this.data.trend.percent);
+        $trendValueContainer.html((this.data.trend.original === 0)? '&nbsp;': this.data.trend.percentFull);
         $trendValueContainer.css('font-size', this.panel.trend.valueFontSize);
+        $trendDigitContainer.html((this.data.trend.percentDecimals && this.data.trend.percentDecimals !== 0)? '.' + this.data.trend.percentDecimals : '');
         $unitContainer.html((this.data.trend.original === 0)? '&nbsp;': '%');
         $unitContainer.css('font-size', this.panel.trend.unitFontSize);
 
