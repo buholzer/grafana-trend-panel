@@ -262,18 +262,14 @@ console.log('onDataReceived()', dataList)
       const $trendValueContainer = elem.find('.trend-panel-trend-container > span.trend-panel-trend-value');
       const $trendDigitContainer = elem.find('.trend-panel-trend-container > span.trend-panel-trend-digits');
 
-      if (this.data.valueFormatted) {
-        $prefixContainer.html(this.panel.prefix);
-        $prefixContainer.css('font-size', this.panel.prefixFontSize);
+      $prefixContainer.html(this.panel.prefix);
+      $prefixContainer.css('font-size', this.panel.prefixFontSize);
+      $valueContainer.css('font-size', this.panel.valueFontSize);
 
+      if (this.data.valueFormatted) {
         $valueContainer.html(this.data.valueFormatted);
-        $valueContainer.removeAttr('style');
-        $valueContainer.css('font-size', this.panel.valueFontSize);
       } else {
-        $prefixContainer.html('');
         $valueContainer.html('0');
-        $valueContainer.removeAttr('style');
-        $valueContainer.css('font-size', this.panel.valueFontSize);
         // $valueContainer.html('loading...');
         // $valueContainer.css({
         //     'opacity': 0.2,

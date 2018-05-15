@@ -322,18 +322,14 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
               var $trendValueContainer = elem.find('.trend-panel-trend-container > span.trend-panel-trend-value');
               var $trendDigitContainer = elem.find('.trend-panel-trend-container > span.trend-panel-trend-digits');
 
-              if (_this3.data.valueFormatted) {
-                $prefixContainer.html(_this3.panel.prefix);
-                $prefixContainer.css('font-size', _this3.panel.prefixFontSize);
+              $prefixContainer.html(_this3.panel.prefix);
+              $prefixContainer.css('font-size', _this3.panel.prefixFontSize);
+              $valueContainer.css('font-size', _this3.panel.valueFontSize);
 
+              if (_this3.data.valueFormatted) {
                 $valueContainer.html(_this3.data.valueFormatted);
-                $valueContainer.removeAttr('style');
-                $valueContainer.css('font-size', _this3.panel.valueFontSize);
               } else {
-                $prefixContainer.html('');
                 $valueContainer.html('0');
-                $valueContainer.removeAttr('style');
-                $valueContainer.css('font-size', _this3.panel.valueFontSize);
                 // $valueContainer.html('loading...');
                 // $valueContainer.css({
                 //     'opacity': 0.2,
