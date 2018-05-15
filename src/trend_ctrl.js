@@ -186,7 +186,7 @@ console.log('onDataReceived()', dataList)
     const numDecimals = 2;
     data.trend.percent = Math.abs(parseFloat(Math.round(percent * 100) / 100).toFixed(numDecimals));
     data.trend.percentFull = data.trend.percent | 0;
-    data.trend.percentDecimals = (data.trend.percent % 1).toFixed(numDecimals) * Math.pow(10, numDecimals)
+    data.trend.percentDecimals = Math.round((data.trend.percent % 1).toFixed(numDecimals) * Math.pow(10, numDecimals))
     // console.log('>> percent', data.trend.percent, data.trend.percentFull, data.trend.percentDecimals);
 
     data.trend.increase = increase;
@@ -270,12 +270,16 @@ console.log('onDataReceived()', dataList)
         $valueContainer.removeAttr('style');
         $valueContainer.css('font-size', this.panel.valueFontSize);
       } else {
-        $valueContainer.html('loading...');
-        $valueContainer.css({
-            'opacity': 0.2,
-            'font-size': '30%',
-            'font-weight': 10
-          });
+        $prefixContainer.html('');
+        $valueContainer.html('0');
+        $valueContainer.removeAttr('style');
+        $valueContainer.css('font-size', this.panel.valueFontSize);
+        // $valueContainer.html('loading...');
+        // $valueContainer.css({
+        //     'opacity': 0.2,
+        //     'font-size': '30%',
+        //     'font-weight': 10
+        //   });
       }
 
       if (this.panel.trend.show && 
