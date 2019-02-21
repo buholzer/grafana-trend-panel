@@ -212,7 +212,7 @@ console.log('onDataReceived()', dataList)
     }
 
     const delta = value / 2;
-    let dec = -Math.floor(Math.log(delta) / Math.LN10);
+    let dec = -Math.floor(Math.log(Math.abs(delta)) / Math.LN10);
 
     const magn = Math.pow(10, -dec);
     const norm = delta / magn; // norm is between 1.0 and 10.0
@@ -264,10 +264,7 @@ console.log('onDataReceived()', dataList)
     var thresholds = this.panel.trend.thresholds.split(',').map(strVale => {
       return Number(strVale.trim());
     });
-  
-    console.log(value);
-    console.log(thresholds);
-    console.log(this.panel.trend.colors);
+
     if (value < thresholds[0]){
       return this.panel.trend.colors[0];
     }
