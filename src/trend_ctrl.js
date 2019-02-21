@@ -220,7 +220,7 @@ console.log('onDataReceived()', dataList)
 
     if (norm < 1.5) {
       size = 1;
-    } else if (norm < 3) {
+    } else if (norm < 3) { 
       size = 2;
       // special case for 2.5, requires an extra decimal
       if (norm > 2.25) {
@@ -284,6 +284,7 @@ console.log('onDataReceived()', dataList)
       const $panelContainer = elem.find('.trend-panel-value-container');
       const $valueContainer = elem.find('.trend-panel-value-container > span.trend-panel-value');
       const $prefixContainer = elem.find('.trend-panel-value-container > span.trend-panel-prefix');
+      const $postfixContainer = elem.find('.trend-panel-value-container > span.trend-panel-postfix');
       const $trendContainer = elem.find('.trend-panel-trend-container');
       const $signContainer = elem.find('.trend-panel-trend-container > span.trend-panel-sign');
       const $unitContainer = elem.find('.trend-panel-trend-container > span.trend-panel-unit');
@@ -292,6 +293,7 @@ console.log('onDataReceived()', dataList)
       const $trendDigitContainer = elem.find('.trend-panel-trend-container > span.trend-panel-trend-digits');
 
       $prefixContainer.html(this.panel.prefix);
+      $postfixContainer.html(this.panel.postfix);
       $prefixContainer.css('font-size', this.panel.prefixFontSize);
       $valueContainer.css('font-size', this.panel.valueFontSize);
 
