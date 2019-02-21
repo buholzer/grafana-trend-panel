@@ -341,7 +341,7 @@ console.log('onDataReceived()', dataList)
       } else {
         $signContainer.html('');
         $signContainer.removeAttr('style');
-        $trendValueContainer.html('');
+        $trendValueContainer.html("Provide query 'B' to see trend");
         $trendValueContainer.removeAttr('style');
         $unitContainer.html('');
         $unitContainer.removeAttr('style');
