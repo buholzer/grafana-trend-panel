@@ -28,6 +28,7 @@ export class TrendCtrl extends MetricsPanelCtrl {
         showDiff: false,
         colors: ['#d44a3a', '#666666', '#299c46'],
         sign: ['▼', '▶', '▲'],
+        colorInBackground: false,
       },
     };
 
@@ -247,12 +248,33 @@ console.log('onDataReceived()', dataList)
     return result;
   }
 
+  invertColorOrder() {
+    const tmp = this.panel.trend.colors[0];
+    this.panel.trend.colors[0] = this.panel.trend.colors[2];
+    this.panel.trend.colors[2] = tmp;
+    this.render();
+  }
+
+  getColorForValue(data, value) {
+    if (!_.isFinite(value)) {
+      return null;
+    }
+  
+    for (let i = this.panel.trend.thresholds.length; i > 0; i--) {
+      if (value >= this.panel.trend.thresholds[i - 1]) {
+        return data.colorMap[i];
+      }
+    }
+  
+    return _.first(data.colorMap);
+  }
+
   //
   // Rendering
   //
   link(scope, elem) {
     this.events.on('render', () => {
-      const $panelContainer = elem.find('.panel-container');
+      const $panelContainer = elem.find('.trend-panel-value-container');
       const $valueContainer = elem.find('.trend-panel-value-container > span.trend-panel-value');
       const $prefixContainer = elem.find('.trend-panel-value-container > span.trend-panel-prefix');
       const $trendContainer = elem.find('.trend-panel-trend-container');
@@ -288,16 +310,24 @@ console.log('onDataReceived()', dataList)
         $trendDigitContainer.html((this.data.trend.percentDecimals && this.data.trend.percentDecimals !== 0)? '.' + this.data.trend.percentDecimals : '');
         $unitContainer.html((this.data.trend.original === 0)? '&nbsp;': '%');
         $unitContainer.css('font-size', this.panel.trend.unitFontSize);
+        var backgroundColor =  this.panel.trend.colorInBackground ? this.panel.trend.colors[this.data.trend.sign + 1] : '#cccccc';
+        var foregroundColor = this.panel.trend.colorInBackground ? '#cccccc' : this.panel.trend.colors[this.data.trend.sign + 1];
 
-        $trendContainer.css('color', this.panel.trend.colors[this.data.trend.sign + 1]);
-
+        $trendContainer.removeAttr('style');
+        if (this.panel.trend.colorInBackground){
+          $trendContainer.css('background-color', backgroundColor);
+        }
+        else{
+          $trendContainer.css('color', foregroundColor);
+        }
+        
         if (this.panel.trend.showDiff && 
             this.data.trend.increaseRounded && 
             this.data.trend.increaseRounded !== 0) {
           $diffContainer.html((this.data.trend.increaseRounded > 0) ? '+' + this.data.trend.increaseRounded : this.data.trend.increaseRounded);
           $diffContainer.css({
-            'background-color': this.panel.trend.colors[this.data.trend.sign + 1],
-            'color': '#cccccc',
+            'background-color': foregroundColor,
+            'color': backgroundColor,
             'font-size': '30%',
             'margin-left': '15px',
             'padding': '2px 4px',
