@@ -308,6 +308,7 @@ console.log('onDataReceived()', dataList)
         $trendValueContainer.html((this.data.trend.original === 0)? '&nbsp;': this.data.trend.percentFull);
         $trendValueContainer.css('font-size', this.panel.trend.valueFontSize);
         $trendDigitContainer.html((this.data.trend.percentDecimals && this.data.trend.percentDecimals !== 0)? '.' + this.data.trend.percentDecimals : '');
+		    $trendDigitContainer.css('font-size', this.panel.trend.valueFontSize);
         $unitContainer.html((this.data.trend.original === 0)? '&nbsp;': '%');
         $unitContainer.css('font-size', this.panel.trend.unitFontSize);
         var backgroundColor =  this.panel.trend.colorInBackground ? this.panel.trend.colors[this.data.trend.sign + 1] : '#cccccc';
