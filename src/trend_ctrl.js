@@ -325,7 +325,7 @@ console.log('onDataReceived()', dataList)
         if (this.panel.trend.showDiff && 
             this.data.trend.increaseRounded && 
             this.data.trend.increaseRounded !== 0) {
-          $diffContainer.html((this.data.trend.increaseRounded > 0) ? '+' + this.data.trend.increaseRounded : this.data.trend.increaseRounded);
+          $diffContainer.html((this.data.trend.increaseRounded > 0) ? '+' + this.data.trend.increaseFormatted : this.data.trend.increaseFormatted);
           $diffContainer.css({
             'background-color': foregroundColor,
             'color': backgroundColor,
