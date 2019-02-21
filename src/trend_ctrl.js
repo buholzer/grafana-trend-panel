@@ -26,9 +26,10 @@ export class TrendCtrl extends MetricsPanelCtrl {
         signFontSize: '70%',
         unitFontSize: '50%',
         showDiff: false,
-        colors: ['#d44a3a', '#666666', '#299c46'],
+        colors: ['#d44a3a', '#e5ac0e', '#299c46'],
         sign: ['▼', '▶', '▲'],
         colorInBackground: false,
+        thresholds : "0,0"
       },
     };
 
@@ -151,13 +152,11 @@ console.log('onDataReceived()', dataList)
 
     console.log(`${this.panel.prefix} > trend`)
     console.log(data.trend)
-
   }
 
   getTrendValue(data, series, current) {
 
     data.trend = {}
-
     const original = series.stats[this.panel.valueName];
     // const original = 130.2456;
     const increase = current - original;
@@ -255,18 +254,29 @@ console.log('onDataReceived()', dataList)
     this.render();
   }
 
-  getColorForValue(data, value) {
-    if (!_.isFinite(value)) {
+  getColorForValue() {
+    if (!_.isFinite(this.data.trend.percent)) {
       return null;
     }
+
+    var value = this.data.trend.percent * this.data.trend.sign;
+    
+    var thresholds = this.panel.trend.thresholds.split(',').map(strVale => {
+      return Number(strVale.trim());
+    });
   
-    for (let i = this.panel.trend.thresholds.length; i > 0; i--) {
-      if (value >= this.panel.trend.thresholds[i - 1]) {
-        return data.colorMap[i];
-      }
+    console.log(value);
+    console.log(thresholds);
+    console.log(this.panel.trend.colors);
+    if (value < thresholds[0]){
+      return this.panel.trend.colors[0];
     }
-  
-    return _.first(data.colorMap);
+    else if (value >= thresholds[0] && value <= thresholds[1]){
+      return this.panel.trend.colors[1];
+    }
+    else{
+      return this.panel.trend.colors[2];
+    }
   }
 
   //
@@ -311,8 +321,8 @@ console.log('onDataReceived()', dataList)
 		    $trendDigitContainer.css('font-size', this.panel.trend.valueFontSize);
         $unitContainer.html((this.data.trend.original === 0)? '&nbsp;': '%');
         $unitContainer.css('font-size', this.panel.trend.unitFontSize);
-        var backgroundColor =  this.panel.trend.colorInBackground ? this.panel.trend.colors[this.data.trend.sign + 1] : '#cccccc';
-        var foregroundColor = this.panel.trend.colorInBackground ? '#cccccc' : this.panel.trend.colors[this.data.trend.sign + 1];
+        var backgroundColor =  this.panel.trend.colorInBackground ? this.getColorForValue() : '#cccccc';
+        var foregroundColor = this.panel.trend.colorInBackground ? '#cccccc' : this.getColorForValue();
 
         $trendContainer.removeAttr('style');
         if (this.panel.trend.colorInBackground){
