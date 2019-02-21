@@ -89,8 +89,10 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
               signFontSize: '70%',
               unitFontSize: '50%',
               showDiff: false,
-              colors: ['#d44a3a', '#666666', '#299c46'],
-              sign: ['▼', '▶', '▲']
+              colors: ['#d44a3a', '#e5ac0e', '#299c46'],
+              sign: ['▼', '▶', '▲'],
+              colorInBackground: false,
+              thresholds: "0,0"
             }
           };
 
@@ -217,7 +219,6 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
           value: function getTrendValue(data, series, current) {
 
             data.trend = {};
-
             var original = series.stats[this.panel.valueName];
             // const original = 130.2456;
             var increase = current - original;
@@ -272,7 +273,7 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
             }
 
             var delta = value / 2;
-            var dec = -Math.floor(Math.log(delta) / Math.LN10);
+            var dec = -Math.floor(Math.log(Math.abs(delta)) / Math.LN10);
 
             var magn = Math.pow(10, -dec);
             var norm = delta / magn; // norm is between 1.0 and 10.0
@@ -307,14 +308,44 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
             return result;
           }
         }, {
+          key: 'invertColorOrder',
+          value: function invertColorOrder() {
+            var tmp = this.panel.trend.colors[0];
+            this.panel.trend.colors[0] = this.panel.trend.colors[2];
+            this.panel.trend.colors[2] = tmp;
+            this.render();
+          }
+        }, {
+          key: 'getColorForValue',
+          value: function getColorForValue() {
+            if (!_.isFinite(this.data.trend.percent)) {
+              return null;
+            }
+
+            var value = this.data.trend.percent * this.data.trend.sign;
+
+            var thresholds = this.panel.trend.thresholds.split(',').map(function (strVale) {
+              return Number(strVale.trim());
+            });
+
+            if (value < thresholds[0]) {
+              return this.panel.trend.colors[0];
+            } else if (value >= thresholds[0] && value <= thresholds[1]) {
+              return this.panel.trend.colors[1];
+            } else {
+              return this.panel.trend.colors[2];
+            }
+          }
+        }, {
           key: 'link',
           value: function link(scope, elem) {
             var _this3 = this;
 
             this.events.on('render', function () {
-              var $panelContainer = elem.find('.panel-container');
+              var $panelContainer = elem.find('.trend-panel-value-container');
               var $valueContainer = elem.find('.trend-panel-value-container > span.trend-panel-value');
               var $prefixContainer = elem.find('.trend-panel-value-container > span.trend-panel-prefix');
+              var $postfixContainer = elem.find('.trend-panel-value-container > span.trend-panel-postfix');
               var $trendContainer = elem.find('.trend-panel-trend-container');
               var $signContainer = elem.find('.trend-panel-trend-container > span.trend-panel-sign');
               var $unitContainer = elem.find('.trend-panel-trend-container > span.trend-panel-unit');
@@ -323,6 +354,7 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
               var $trendDigitContainer = elem.find('.trend-panel-trend-container > span.trend-panel-trend-digits');
 
               $prefixContainer.html(_this3.panel.prefix);
+              $postfixContainer.html(_this3.panel.postfix);
               $prefixContainer.css('font-size', _this3.panel.prefixFontSize);
               $valueContainer.css('font-size', _this3.panel.valueFontSize);
 
@@ -344,16 +376,24 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
                 $trendValueContainer.html(_this3.data.trend.original === 0 ? '&nbsp;' : _this3.data.trend.percentFull);
                 $trendValueContainer.css('font-size', _this3.panel.trend.valueFontSize);
                 $trendDigitContainer.html(_this3.data.trend.percentDecimals && _this3.data.trend.percentDecimals !== 0 ? '.' + _this3.data.trend.percentDecimals : '');
+                $trendDigitContainer.css('font-size', _this3.panel.trend.valueFontSize);
                 $unitContainer.html(_this3.data.trend.original === 0 ? '&nbsp;' : '%');
                 $unitContainer.css('font-size', _this3.panel.trend.unitFontSize);
+                var backgroundColor = _this3.panel.trend.colorInBackground ? _this3.getColorForValue() : '#cccccc';
+                var foregroundColor = _this3.panel.trend.colorInBackground ? '#cccccc' : _this3.getColorForValue();
 
-                $trendContainer.css('color', _this3.panel.trend.colors[_this3.data.trend.sign + 1]);
+                $trendContainer.removeAttr('style');
+                if (_this3.panel.trend.colorInBackground) {
+                  $trendContainer.css('background-color', backgroundColor);
+                } else {
+                  $trendContainer.css('color', foregroundColor);
+                }
 
                 if (_this3.panel.trend.showDiff && _this3.data.trend.increaseRounded && _this3.data.trend.increaseRounded !== 0) {
-                  $diffContainer.html(_this3.data.trend.increaseRounded > 0 ? '+' + _this3.data.trend.increaseRounded : _this3.data.trend.increaseRounded);
+                  $diffContainer.html(_this3.data.trend.increaseRounded > 0 ? '+' + _this3.data.trend.increaseFormatted : _this3.data.trend.increaseFormatted);
                   $diffContainer.css({
-                    'background-color': _this3.panel.trend.colors[_this3.data.trend.sign + 1],
-                    'color': '#cccccc',
+                    'background-color': foregroundColor,
+                    'color': backgroundColor,
                     'font-size': '30%',
                     'margin-left': '15px',
                     'padding': '2px 4px',
@@ -366,7 +406,7 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
               } else {
                 $signContainer.html('');
                 $signContainer.removeAttr('style');
-                $trendValueContainer.html('');
+                $trendValueContainer.html("Provide query 'B' to see trend");
                 $trendValueContainer.removeAttr('style');
                 $unitContainer.html('');
                 $unitContainer.removeAttr('style');

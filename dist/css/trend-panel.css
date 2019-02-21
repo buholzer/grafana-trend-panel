@@ -28,10 +28,12 @@
 
 .trend-panel-prefix {
   color: #aaaaaa;
+  padding-right: 10px;
 }
 
 .trend-panel-postfix {
   color: #aaaaaa;
+  padding-left: 10px;
 }
 
 .trend-panel-trend-container .trend-panel-sign {
@@ -43,8 +45,4 @@
 }
 
 .trend-panel-trend-container .trend-panel-diff {
-}
-
-.trend-panel-prefix {
-  padding-right: 20px;
 }

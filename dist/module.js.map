@@ -1,1 +1,1 @@
-{"version":3,"sources":["../src/module.js"],"names":["TrendCtrl"],"mappings":";;;;;;;;AAAQA,e,eAAAA,S;;;2BAGNA,S","file":"module.js","sourcesContent":["import {TrendCtrl} from './trend_ctrl';\n\nexport {\n  TrendCtrl as PanelCtrl\n};\n"]}
+{"version":3,"sources":["../src/module.js"],"names":["TrendCtrl"],"mappings":";;;;;;;;AAAQA,e,eAAAA,S;;;2BAGNA,S","file":"module.js","sourcesContent":["import {TrendCtrl} from './trend_ctrl';\r\n\r\nexport {\r\n  TrendCtrl as PanelCtrl\r\n};\r\n"]}
