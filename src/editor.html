@@ -72,21 +72,6 @@
       	<label class="gf-form-label width-8">Show diff</label>
         <gf-form-switch class="gf-form" label-class="width-8" checked="ctrl.panel.trend.showDiff" on-change="ctrl.render()"></gf-form-switch>
       </div>    
-      <div class="gf-form">
-        <label class="gf-form-label width-8">Trend Colors</label>
-        <span class="gf-form-label" ng-repeat="color in ctrl.panel.trend.colors track by $index">
-          <color-picker color="color" onChange="ctrl.onTrendColorChange($index)"></color-picker>
-        </span>
-        <span class="gf-form-label">
-          <a ng-click="ctrl.invertColorOrder()">
-            Invert
-          </a>
-        </span>
-      </div>
-      <div class="gf-form">
-      	<label class="gf-form-label width-12">Trend color in background</label>
-        <gf-form-switch class="gf-form" label-class="width-8" checked="ctrl.panel.trend.colorInBackground" on-change="ctrl.render()"></gf-form-switch>
-      </div>    
     </div>
   </div>
 
@@ -103,7 +88,16 @@
       <span class="gf-form-label" ng-repeat="color in ctrl.panel.trend.colors track by $index">
         <color-picker color="color" onChange="ctrl.onTrendColorChange($index)"></color-picker>
       </span>
+      <span class="gf-form-label">
+        <a ng-click="ctrl.invertColorOrder()">
+          Invert
+        </a>
+      </span>
     </div>
+    <div class="gf-form">
+        <label class="gf-form-label width-12">Trend color in background</label>
+        <gf-form-switch class="gf-form" label-class="width-8" checked="ctrl.panel.trend.colorInBackground" on-change="ctrl.render()"></gf-form-switch>
+    </div>    
   </div>
 
 </div>
