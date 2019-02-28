@@ -144,7 +144,7 @@ console.log('onDataReceived()', dataList)
       data.scopedVars['__name'] = { value: this.series[0].label }; // eslint-disable-line
     }
 
-    if (this.series && this.series.length > 1 && data.value) {
+    if (this.series && this.series.length > 1 && data.value != null) {
       this.getTrendValue(data, this.series[1], data.value);
     } else {
       data.trend = {}
@@ -312,13 +312,14 @@ console.log('onDataReceived()', dataList)
       if (this.panel.trend.show && 
           this.data.trend.hasOwnProperty('percent') && 
           this.data.trend.hasOwnProperty('sign')) {
+
         $signContainer.html(this.panel.trend.sign[this.data.trend.sign + 1]);
         $signContainer.css('font-size', this.panel.trend.signFontSize);
-        $trendValueContainer.html((this.data.trend.original === 0)? '&nbsp;': this.data.trend.percentFull);
+        $trendValueContainer.html((this.data.trend.original === 0)? 'NaN': this.data.trend.percentFull);
         $trendValueContainer.css('font-size', this.panel.trend.valueFontSize);
         $trendDigitContainer.html((this.data.trend.percentDecimals && this.data.trend.percentDecimals !== 0)? '.' + this.data.trend.percentDecimals : '');
 		    $trendDigitContainer.css('font-size', this.panel.trend.valueFontSize);
-        $unitContainer.html((this.data.trend.original === 0)? '&nbsp;': '%');
+        $unitContainer.html('%');
         $unitContainer.css('font-size', this.panel.trend.unitFontSize);
         var backgroundColor =  this.panel.trend.colorInBackground ? this.getColorForValue() : '#cccccc';
         var foregroundColor = this.panel.trend.colorInBackground ? '#cccccc' : this.getColorForValue();

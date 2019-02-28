@@ -205,7 +205,7 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
               data.scopedVars['__name'] = { value: this.series[0].label }; // eslint-disable-line
             }
 
-            if (this.series && this.series.length > 1 && data.value) {
+            if (this.series && this.series.length > 1 && data.value != null) {
               this.getTrendValue(data, this.series[1], data.value);
             } else {
               data.trend = {};
@@ -371,13 +371,14 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
               }
 
               if (_this3.panel.trend.show && _this3.data.trend.hasOwnProperty('percent') && _this3.data.trend.hasOwnProperty('sign')) {
+
                 $signContainer.html(_this3.panel.trend.sign[_this3.data.trend.sign + 1]);
                 $signContainer.css('font-size', _this3.panel.trend.signFontSize);
-                $trendValueContainer.html(_this3.data.trend.original === 0 ? '&nbsp;' : _this3.data.trend.percentFull);
+                $trendValueContainer.html(_this3.data.trend.original === 0 ? 'NaN' : _this3.data.trend.percentFull);
                 $trendValueContainer.css('font-size', _this3.panel.trend.valueFontSize);
                 $trendDigitContainer.html(_this3.data.trend.percentDecimals && _this3.data.trend.percentDecimals !== 0 ? '.' + _this3.data.trend.percentDecimals : '');
                 $trendDigitContainer.css('font-size', _this3.panel.trend.valueFontSize);
-                $unitContainer.html(_this3.data.trend.original === 0 ? '&nbsp;' : '%');
+                $unitContainer.html('%');
                 $unitContainer.css('font-size', _this3.panel.trend.unitFontSize);
                 var backgroundColor = _this3.panel.trend.colorInBackground ? _this3.getColorForValue() : '#cccccc';
                 var foregroundColor = _this3.panel.trend.colorInBackground ? '#cccccc' : _this3.getColorForValue();
