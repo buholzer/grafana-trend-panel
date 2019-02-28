@@ -1,0 +1,22 @@
+stages:
+  - build
+
+build:
+  image: node:8
+  stage: build
+  script:
+    - apt-get update -y
+    - apt-get install -y zip gzip tar
+    - npm install grunt -g
+    - npm install
+    - grunt
+    # Create + move files required by Grafana into the plugin dir name
+    - mkdir grafana-trend-panel
+    - mv dist/ grafana-trend-panel/dist
+    # Create a archive that can be downloaded by name (to appease our chef server)
+    - zip -r $CI_COMMIT_SHA.zip grafana-trend-panel/
+  artifacts:
+    name: "grafana-trend-panel"
+    paths:
+      - grafana-trend-panel/dist
+      - $CI_COMMIT_SHA.zip

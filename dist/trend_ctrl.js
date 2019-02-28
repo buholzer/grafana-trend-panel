@@ -406,7 +406,11 @@ System.register(['app/plugins/sdk', 'lodash', 'app/core/utils/kbn', 'app/core/ti
               } else {
                 $signContainer.html('');
                 $signContainer.removeAttr('style');
-                $trendValueContainer.html("Provide query 'B' to see trend");
+                if (_this3.panel.trend.show) {
+                  $trendValueContainer.html("Provide query 'B' to see trend");
+                } else {
+                  $trendValueContainer.html('');
+                }
                 $trendValueContainer.removeAttr('style');
                 $unitContainer.html('');
                 $unitContainer.removeAttr('style');

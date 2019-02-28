@@ -350,7 +350,12 @@ console.log('onDataReceived()', dataList)
       } else {
         $signContainer.html('');
         $signContainer.removeAttr('style');
-        $trendValueContainer.html("Provide query 'B' to see trend");
+        if (this.panel.trend.show){
+          $trendValueContainer.html("Provide query 'B' to see trend");
+        }
+        else{
+          $trendValueContainer.html('');
+        }
         $trendValueContainer.removeAttr('style');
         $unitContainer.html('');
         $unitContainer.removeAttr('style');
