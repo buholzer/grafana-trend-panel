@@ -1,14 +1,20 @@
 ## Trend Panel Plugin for Grafana
 
-The Trend Panel can show the current value of a metric and compare it to a previous time. It will also show the trend in percent and the difference of the two values.
+The Trend Panel can show the current value of a metric and compare it to a previous time. It will also show the trend in percent and the difference of the two values:
 
-This plugin is work in progress, use it at your own risk.
+![trend panel demo](docs/screenshot-showcase.png)
 
-#### Changelog
+## Building
+```
+npm install -g grunt
+npm install
+grunt
+```
 
-##### v0.0.1
-
-- Initial commit
+## Build on source file change
+```
+grunt -watch
+```
 
 ## Attribution
 - Trend icon by ✦ Shmidt Sergey ✦ from the Noun Project

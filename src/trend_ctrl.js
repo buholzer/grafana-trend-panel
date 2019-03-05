@@ -26,8 +26,10 @@ export class TrendCtrl extends MetricsPanelCtrl {
         signFontSize: '70%',
         unitFontSize: '50%',
         showDiff: false,
-        colors: ['#d44a3a', '#666666', '#299c46'],
+        colors: ['#d44a3a', '#e5ac0e', '#299c46'],
         sign: ['▼', '▶', '▲'],
+        colorInBackground: false,
+        thresholds : "0,0"
       },
     };
 
@@ -142,7 +144,7 @@ console.log('onDataReceived()', dataList)
       data.scopedVars['__name'] = { value: this.series[0].label }; // eslint-disable-line
     }
 
-    if (this.series && this.series.length > 1 && data.value) {
+    if (this.series && this.series.length > 1 && data.value != null) {
       this.getTrendValue(data, this.series[1], data.value);
     } else {
       data.trend = {}
@@ -150,13 +152,11 @@ console.log('onDataReceived()', dataList)
 
     console.log(`${this.panel.prefix} > trend`)
     console.log(data.trend)
-
   }
 
   getTrendValue(data, series, current) {
 
     data.trend = {}
-
     const original = series.stats[this.panel.valueName];
     // const original = 130.2456;
     const increase = current - original;
@@ -212,7 +212,7 @@ console.log('onDataReceived()', dataList)
     }
 
     const delta = value / 2;
-    let dec = -Math.floor(Math.log(delta) / Math.LN10);
+    let dec = -Math.floor(Math.log(Math.abs(delta)) / Math.LN10);
 
     const magn = Math.pow(10, -dec);
     const norm = delta / magn; // norm is between 1.0 and 10.0
@@ -220,7 +220,7 @@ console.log('onDataReceived()', dataList)
 
     if (norm < 1.5) {
       size = 1;
-    } else if (norm < 3) {
+    } else if (norm < 3) { 
       size = 2;
       // special case for 2.5, requires an extra decimal
       if (norm > 2.25) {
@@ -247,14 +247,44 @@ console.log('onDataReceived()', dataList)
     return result;
   }
 
+  invertColorOrder() {
+    const tmp = this.panel.trend.colors[0];
+    this.panel.trend.colors[0] = this.panel.trend.colors[2];
+    this.panel.trend.colors[2] = tmp;
+    this.render();
+  }
+
+  getColorForValue() {
+    if (!_.isFinite(this.data.trend.percent)) {
+      return null;
+    }
+
+    var value = this.data.trend.percent * this.data.trend.sign;
+    
+    var thresholds = this.panel.trend.thresholds.split(',').map(strVale => {
+      return Number(strVale.trim());
+    });
+
+    if (value < thresholds[0]){
+      return this.panel.trend.colors[0];
+    }
+    else if (value >= thresholds[0] && value <= thresholds[1]){
+      return this.panel.trend.colors[1];
+    }
+    else{
+      return this.panel.trend.colors[2];
+    }
+  }
+
   //
   // Rendering
   //
   link(scope, elem) {
     this.events.on('render', () => {
-      const $panelContainer = elem.find('.panel-container');
+      const $panelContainer = elem.find('.trend-panel-value-container');
       const $valueContainer = elem.find('.trend-panel-value-container > span.trend-panel-value');
       const $prefixContainer = elem.find('.trend-panel-value-container > span.trend-panel-prefix');
+      const $postfixContainer = elem.find('.trend-panel-value-container > span.trend-panel-postfix');
       const $trendContainer = elem.find('.trend-panel-trend-container');
       const $signContainer = elem.find('.trend-panel-trend-container > span.trend-panel-sign');
       const $unitContainer = elem.find('.trend-panel-trend-container > span.trend-panel-unit');
@@ -263,6 +293,7 @@ console.log('onDataReceived()', dataList)
       const $trendDigitContainer = elem.find('.trend-panel-trend-container > span.trend-panel-trend-digits');
 
       $prefixContainer.html(this.panel.prefix);
+      $postfixContainer.html(this.panel.postfix);
       $prefixContainer.css('font-size', this.panel.prefixFontSize);
       $valueContainer.css('font-size', this.panel.valueFontSize);
 
@@ -281,23 +312,33 @@ console.log('onDataReceived()', dataList)
       if (this.panel.trend.show && 
           this.data.trend.hasOwnProperty('percent') && 
           this.data.trend.hasOwnProperty('sign')) {
+
         $signContainer.html(this.panel.trend.sign[this.data.trend.sign + 1]);
         $signContainer.css('font-size', this.panel.trend.signFontSize);
-        $trendValueContainer.html((this.data.trend.original === 0)? '&nbsp;': this.data.trend.percentFull);
+        $trendValueContainer.html((this.data.trend.original === 0)? 'NaN': this.data.trend.percentFull);
         $trendValueContainer.css('font-size', this.panel.trend.valueFontSize);
         $trendDigitContainer.html((this.data.trend.percentDecimals && this.data.trend.percentDecimals !== 0)? '.' + this.data.trend.percentDecimals : '');
-        $unitContainer.html((this.data.trend.original === 0)? '&nbsp;': '%');
+		    $trendDigitContainer.css('font-size', this.panel.trend.valueFontSize);
+        $unitContainer.html('%');
         $unitContainer.css('font-size', this.panel.trend.unitFontSize);
+        var backgroundColor =  this.panel.trend.colorInBackground ? this.getColorForValue() : '#cccccc';
+        var foregroundColor = this.panel.trend.colorInBackground ? '#cccccc' : this.getColorForValue();
 
-        $trendContainer.css('color', this.panel.trend.colors[this.data.trend.sign + 1]);
-
+        $trendContainer.removeAttr('style');
+        if (this.panel.trend.colorInBackground){
+          $trendContainer.css('background-color', backgroundColor);
+        }
+        else{
+          $trendContainer.css('color', foregroundColor);
+        }
+        
         if (this.panel.trend.showDiff && 
             this.data.trend.increaseRounded && 
             this.data.trend.increaseRounded !== 0) {
-          $diffContainer.html((this.data.trend.increaseRounded > 0) ? '+' + this.data.trend.increaseRounded : this.data.trend.increaseRounded);
+          $diffContainer.html((this.data.trend.increaseRounded > 0) ? '+' + this.data.trend.increaseFormatted : this.data.trend.increaseFormatted);
           $diffContainer.css({
-            'background-color': this.panel.trend.colors[this.data.trend.sign + 1],
-            'color': '#cccccc',
+            'background-color': foregroundColor,
+            'color': backgroundColor,
             'font-size': '30%',
             'margin-left': '15px',
             'padding': '2px 4px',
@@ -310,7 +351,12 @@ console.log('onDataReceived()', dataList)
       } else {
         $signContainer.html('');
         $signContainer.removeAttr('style');
-        $trendValueContainer.html('');
+        if (this.panel.trend.show){
+          $trendValueContainer.html("Provide query 'B' to see trend");
+        }
+        else{
+          $trendValueContainer.html('');
+        }
         $trendValueContainer.removeAttr('style');
         $unitContainer.html('');
         $unitContainer.removeAttr('style');
